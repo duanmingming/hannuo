@@ -83,7 +83,7 @@
             </div>
           </el-card>
           <el-card class="box-card">
-              <div id="myChart" :style="{width: '100%', height: '410px'}"></div>
+            <Charts :chartData='chartData'></Charts>
           </el-card>
       </el-main>
     </el-container>
@@ -91,6 +91,8 @@
 </template>
 
 <script>
+import Charts from "./Charts";
+
 export default {
   name: "Monitor",
   data() {
@@ -104,7 +106,7 @@ export default {
           label: "HB",
           children: [
             {
-              value: "1",
+              value: "ff:ff:ff:ff:ff:ff",
               label: "ff:ff:ff:ff:ff:ff"
             },
             {
@@ -126,7 +128,7 @@ export default {
           label: "HM",
           children: [
             {
-              value: "1",
+              value: "ff:ff:ff:ff:ff:ff",
               label: "ff:ff:ff:ff:ff:ff",
               children: []
             },
@@ -148,29 +150,27 @@ export default {
           ]
         }
       ],
-
-      chartData: ["7", "8", "9", "10", "11", "12"]
+      selectData: {
+        type: "上行带宽",
+        macAddr: []
+      },
+      chartData: {
+        type: "上行带宽",
+        data: [1, 2, 3, 4, 5, 6]
+      }
     };
   },
 
-  mounted() {
-    this.drawLine();
-    this.$http.get("/").then(
-      response => {
-        console.log(response.data);
-      },
-      response => {
-        console.log("error");
-      }
-    );
+  components: {
+    Charts: Charts
   },
 
   methods: {
     handleClick(key, keyPath) {
       this.navData = keyPath[0];
       this.navData1 = keyPath[1];
-      this.chartData = ["1", "2", "3", "4", "5", "6"];
-      this.drawLine();
+      this.selectData.type = keyPath[1];
+      this.chartData.type = keyPath[1];
     },
     handleItemChange(val) {
       if (val[0] == "hmMac") {
@@ -198,30 +198,11 @@ export default {
         }
       }
     },
-    drawLine() {
-      // 基于准备好的dom，初始化echarts实例
-      let myChart = this.$echarts.init(document.getElementById("myChart"));
-      // 绘制图表
-      myChart.setOption({
-        title: { text: "在Vue中使用echarts" },
-        tooltip: {},
-        xAxis: {
-          data: this.chartData
-        },
-        yAxis: {},
-        series: [
-          {
-            name: "销量",
-            type: "bar",
-            data: [5, 20, 36, 10, 10, 20]
-          }
-        ]
-      });
-    },
+
     handleChange(value) {
       console.log(value);
-      this.chartData = ["1", "2", "3", "4", "5", "6"];
-      this.drawLine();
+      if (value[0] == "hbMac") this.selectData.macAddr = [value[1]];
+      else this.selectData.macAddr = [value[1], value[2]];
     }
   }
 };
